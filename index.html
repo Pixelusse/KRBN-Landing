@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KRBN — Calculez l'empreinte carbone de vos projets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #2563EB;
+  --blue-light: #DBEAFE;
+  --blue-mid: #EFF6FF;
+  --blue-dark: #1D4ED8;
+  --green: #16A34A;
+  --green-light: #F0FDF4;
+  --amber: #F59E0B;
+  --red: #EF4444;
+  --black: #111827;
+  --gray-900: #1F2937;
+  --gray-700: #374151;
+  --gray-500: #6B7280;
+  --gray-400: #9CA3AF;
+  --gray-200: #E5E7EB;
+  --gray-100: #F3F4F6;
+  --gray-50: #F9FAFB;
+  --white: #FFFFFF;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --radius: 12px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.1), 0 6px 16px rgba(0,0,0,0.06);
+  --shadow-blue: 0 8px 32px rgba(37,99,235,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--white);
+  color: var(--gray-900);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 64px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--gray-200);
+}
+.nav-logo {
+  font-size: 20px; font-weight: 800; color: var(--blue);
+  text-decoration: none; letter-spacing: -0.5px;
+}
+.nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
+.nav-links a {
+  font-size: 13px; font-weight: 600; color: var(--gray-500);
+  text-decoration: none; transition: color 0.15s;
+}
+.nav-links a:hover { color: var(--gray-900); }
+.btn-nav {
+  background: var(--blue); color: var(--white) !important;
+  padding: 8px 18px; border-radius: 8px;
+  font-weight: 700 !important; font-size: 13px !important;
+  transition: background 0.15s, transform 0.15s !important;
+  box-shadow: var(--shadow-blue);
+}
+.btn-nav:hover { background: var(--blue-dark) !important; transform: translateY(-1px) !important; }
+
+/* ── HERO ── */
+.hero {
+  padding: 128px 48px 100px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--blue-mid) 0%, var(--white) 100%);
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(37,99,235,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--white); border: 1px solid var(--blue-light);
+  padding: 6px 16px; border-radius: 100px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--blue);
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 28px;
+  box-shadow: var(--shadow-sm);
+  opacity: 0; animation: up 0.7s ease forwards 0.1s;
+}
+.hero-badge::before {
+  content: ''; width: 6px; height: 6px;
+  background: var(--green); border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(44px, 6vw, 80px);
+  line-height: 1.06; font-weight: 400;
+  color: var(--black); margin-bottom: 24px;
+  max-width: 860px; margin-left: auto; margin-right: auto;
+  opacity: 0; animation: up 0.7s ease forwards 0.2s;
+}
+h1 em { font-style: italic; color: var(--blue); }
+.hero-sub {
+  font-size: 18px; color: var(--gray-500); line-height: 1.75;
+  max-width: 560px; margin: 0 auto 48px; font-weight: 400;
+  opacity: 0; animation: up 0.7s ease forwards 0.35s;
+}
+.hero-btns {
+  display: flex; gap: 12px; align-items: center; justify-content: center;
+  margin-bottom: 80px;
+  opacity: 0; animation: up 0.7s ease forwards 0.5s;
+}
+.btn-primary {
+  background: var(--blue); color: var(--white);
+  padding: 14px 28px; border-radius: 10px;
+  font-size: 15px; font-weight: 700; text-decoration: none;
+  transition: all 0.2s; box-shadow: var(--shadow-blue);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(37,99,235,0.28); }
+.btn-secondary {
+  background: var(--white); color: var(--gray-700);
+  padding: 14px 24px; border-radius: 10px;
+  font-size: 15px; font-weight: 600; text-decoration: none;
+  border: 1px solid var(--gray-200); transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+.btn-secondary:hover { border-color: var(--gray-400); background: var(--gray-50); transform: translateY(-1px); }
+
+/* Hero app mockup */
+.hero-mockup {
+  max-width: 960px; margin: 0 auto;
+  opacity: 0; animation: up 0.9s ease forwards 0.65s;
+}
+.mockup-browser {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.browser-bar {
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.browser-url {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 6px; padding: 4px 12px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--gray-400);
+  margin-left: 10px; flex: 1; max-width: 400px;
+}
+.browser-content {
+  padding: 24px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.mock-card {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 10px; padding: 16px;
+}
+.mock-label { font-size: 10px; color: var(--gray-400); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.mock-value { font-family: var(--font-mono); font-size: 22px; font-weight: 500; color: var(--black); }
+.mock-unit { font-size: 11px; color: var(--gray-400); margin-left: 3px; }
+.mock-bar-bg { height: 5px; background: var(--gray-100); border-radius: 3px; margin-top: 10px; }
+.mock-bar-fill { height: 5px; border-radius: 3px; }
+.mock-table {
+  grid-column: 1 / -1;
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 10px; overflow: hidden;
+}
+.mock-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 16px; border-bottom: 1px solid var(--gray-100);
+  font-size: 12px;
+}
+.mock-row:last-child { border-bottom: none; }
+.mock-row-name { color: var(--gray-700); }
+.mock-row-status {
+  font-size: 10px; font-weight: 700; padding: 3px 8px;
+  border-radius: 100px; font-family: var(--font-mono);
+}
+.status-green { background: #DCFCE7; color: #166534; }
+.status-blue { background: var(--blue-light); color: #1E40AF; }
+.status-gray { background: var(--gray-100); color: var(--gray-500); }
+.mock-co2 { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--blue); }
+
+/* ── TICKER ── */
+.ticker-wrap {
+  overflow: hidden;
+  border-top: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 13px 0; background: var(--gray-50);
+}
+.ticker { display: flex; gap: 48px; width: max-content; animation: ticker 28s linear infinite; }
+.ticker-item {
+  font-family: var(--font-mono); font-size: 11px; color: var(--gray-400);
+  text-transform: uppercase; letter-spacing: 1.5px; white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+}
+.ticker-dot { width: 5px; height: 5px; background: var(--blue); border-radius: 50%; flex-shrink: 0; }
+@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ── SECTIONS ── */
+section { padding: 100px 48px; }
+.container { max-width: 1160px; margin: 0 auto; }
+.section-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--blue);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;
+  background: var(--blue-mid); padding: 5px 12px; border-radius: 100px;
+  border: 1px solid var(--blue-light);
+}
+h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 3.5vw, 52px);
+  line-height: 1.1; font-weight: 400; color: var(--black);
+  margin-bottom: 16px;
+}
+h2 em { font-style: italic; color: var(--blue); }
+.lead {
+  font-size: 17px; color: var(--gray-500); line-height: 1.75;
+  font-weight: 400; max-width: 520px;
+}
+
+/* ── STATS ── */
+.stats { background: var(--blue); padding: 72px 48px; }
+.stats-grid {
+  max-width: 1160px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px;
+}
+.stat-box {
+  background: rgba(255,255,255,0.08);
+  padding: 40px 36px; text-align: center;
+  transition: background 0.2s;
+}
+.stat-box:first-child { border-radius: 12px 0 0 12px; }
+.stat-box:last-child { border-radius: 0 12px 12px 0; }
+.stat-box:hover { background: rgba(255,255,255,0.14); }
+.stat-num {
+  font-family: var(--font-serif); font-style: italic;
+  font-size: 52px; color: var(--white); line-height: 1;
+  margin-bottom: 8px; display: block;
+}
+.stat-label { font-size: 13px; color: rgba(255,255,255,0.65); font-weight: 500; }
+
+/* ── PROBLEM ── */
+.problem { background: var(--gray-50); border-top: 1px solid var(--gray-200); border-bottom: 1px solid var(--gray-200); }
+.problem-inner {
+  max-width: 1160px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+}
+.problem-cards { display: flex; flex-direction: column; gap: 14px; }
+.problem-card {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: var(--radius); padding: 22px 24px;
+  display: flex; gap: 18px; align-items: flex-start;
+  box-shadow: var(--shadow-sm); transition: all 0.2s;
+}
+.problem-card:hover { box-shadow: var(--shadow); transform: translateX(4px); border-color: var(--blue-light); }
+.problem-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.problem-title { font-size: 14px; font-weight: 700; color: var(--black); margin-bottom: 5px; }
+.problem-text { font-size: 13px; color: var(--gray-500); line-height: 1.6; }
+
+/* ── STEPS ── */
+.steps-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  margin-top: 64px;
+}
+.step {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 16px; padding: 36px 32px;
+  position: relative; box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.step:hover { box-shadow: var(--shadow); transform: translateY(-3px); border-color: var(--blue-light); }
+.step-num {
+  font-family: var(--font-mono); font-size: 10px; color: var(--blue);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px;
+  background: var(--blue-mid); display: inline-block;
+  padding: 4px 10px; border-radius: 100px; border: 1px solid var(--blue-light);
+}
+.step-icon { font-size: 32px; margin-bottom: 16px; display: block; }
+.step-title { font-size: 17px; font-weight: 700; color: var(--black); margin-bottom: 10px; }
+.step-text { font-size: 13px; color: var(--gray-500); line-height: 1.7; }
+.step-arrow {
+  position: absolute; top: 50%; right: -36px;
+  transform: translateY(-50%);
+  font-size: 18px; color: var(--gray-300); font-family: var(--font-sans);
+}
+
+/* ── FEATURES ── */
+.features { background: var(--gray-50); border-top: 1px solid var(--gray-200); }
+.features-header {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+  align-items: end; margin-bottom: 64px;
+}
+.features-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+}
+.feature {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 16px; padding: 36px 32px;
+  box-shadow: var(--shadow-sm); transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.feature::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--blue), #60A5FA);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.feature:hover::before { transform: scaleX(1); }
+.feature:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+.feature-icon { font-size: 28px; margin-bottom: 16px; display: block; }
+.feature-title { font-size: 17px; font-weight: 700; color: var(--black); margin-bottom: 10px; }
+.feature-text { font-size: 13px; color: var(--gray-500); line-height: 1.75; }
+.feature-badge {
+  display: inline-block; margin-top: 14px;
+  font-family: var(--font-mono); font-size: 9px; color: var(--blue);
+  letter-spacing: 2px; text-transform: uppercase;
+  background: var(--blue-mid); padding: 3px 10px;
+  border-radius: 100px; border: 1px solid var(--blue-light);
+}
+
+/* ── DATA SOURCES ── */
+.sources-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  margin-top: 24px;
+}
+.source-card {
+  border: 1px solid var(--gray-200); border-radius: 16px; padding: 32px 28px;
+  background: var(--white); box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.source-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); border-color: var(--blue); }
+.source-badge {
+  display: inline-block; font-family: var(--font-mono); font-size: 9px;
+  color: var(--blue); letter-spacing: 2px; text-transform: uppercase;
+  background: var(--blue-mid); padding: 3px 10px; border-radius: 100px;
+  border: 1px solid var(--blue-light); margin-bottom: 16px;
+}
+.source-name { font-size: 17px; font-weight: 700; color: var(--black); margin-bottom: 10px; }
+.source-desc { font-size: 13px; color: var(--gray-500); line-height: 1.7; }
+.source-count {
+  font-family: var(--font-serif); font-style: italic;
+  font-size: 36px; color: var(--blue); display: block; margin-top: 20px; line-height: 1;
+}
+.source-count-label { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+
+/* ── QUOTE CENTRALE ── */
+.quote-section {
+  background: linear-gradient(135deg, var(--blue) 0%, #1D4ED8 100%);
+  padding: 100px 48px; text-align: center;
+}
+.quote-inner { max-width: 760px; margin: 0 auto; }
+.quote-text {
+  font-family: var(--font-serif); font-style: italic;
+  font-size: clamp(24px, 3.5vw, 44px);
+  color: var(--white); line-height: 1.25; margin-bottom: 24px;
+}
+.quote-tag {
+  font-family: var(--font-mono); font-size: 11px;
+  color: rgba(255,255,255,0.5); letter-spacing: 2px; text-transform: uppercase;
+}
+
+/* ── CSRD ── */
+.csrd-inner {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+}
+.csrd-nums {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.csrd-box {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 14px; padding: 28px 24px;
+  box-shadow: var(--shadow-sm); transition: all 0.2s;
+}
+.csrd-box:hover { box-shadow: var(--shadow); border-color: var(--blue-light); }
+.csrd-val {
+  font-family: var(--font-serif); font-style: italic;
+  font-size: 38px; color: var(--blue); line-height: 1; margin-bottom: 8px; display: block;
+}
+.csrd-label { font-size: 12px; color: var(--gray-500); line-height: 1.5; }
+
+/* ── TESTIMONIAL ── */
+.testimonial { background: var(--gray-50); border-top: 1px solid var(--gray-200); }
+.testimonial-inner {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+}
+.testi-card {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 16px; padding: 36px 32px;
+  box-shadow: var(--shadow-sm); transition: all 0.2s;
+}
+.testi-card:hover { box-shadow: var(--shadow); }
+.testi-stars { color: var(--amber); font-size: 16px; margin-bottom: 16px; letter-spacing: 2px; }
+.testi-text { font-family: var(--font-serif); font-style: italic; font-size: 17px; color: var(--gray-700); line-height: 1.65; margin-bottom: 20px; }
+.testi-author { display: flex; align-items: center; gap: 12px; }
+.testi-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--blue-mid); border: 2px solid var(--blue-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: var(--blue);
+}
+.testi-name { font-size: 14px; font-weight: 700; color: var(--black); }
+.testi-role { font-size: 12px; color: var(--gray-400); }
+
+/* ── CTA FINAL ── */
+.cta-final {
+  text-align: center; padding: 140px 48px;
+  background: linear-gradient(180deg, var(--white) 0%, var(--blue-mid) 100%);
+  position: relative; overflow: hidden;
+}
+.cta-final::before {
+  content: '';
+  position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse, rgba(37,99,235,0.08) 0%, transparent 70%);
+}
+.cta-title {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 5vw, 68px);
+  line-height: 1.08; font-weight: 400; color: var(--black);
+  max-width: 740px; margin: 0 auto 20px;
+}
+.cta-title em { font-style: italic; color: var(--blue); }
+.cta-sub { font-size: 17px; color: var(--gray-500); margin-bottom: 48px; }
+.cta-trust {
+  margin-top: 28px; font-family: var(--font-mono); font-size: 10px;
+  color: var(--gray-400); letter-spacing: 1.5px; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  flex-wrap: wrap;
+}
+.cta-trust span::before { content: '✓ '; color: var(--green); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--gray-200); padding: 40px 48px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--white);
+}
+.footer-logo { font-size: 18px; font-weight: 800; color: var(--blue); text-decoration: none; }
+.footer-copy { font-size: 12px; color: var(--gray-400); text-align: center; line-height: 1.6; }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 12px; color: var(--gray-400); text-decoration: none; transition: color 0.15s; }
+.footer-links a:hover { color: var(--gray-700); }
+
+/* ── ANIMATIONS ── */
+@keyframes up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.in { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  section { padding: 72px 20px; }
+  .hero { padding: 100px 20px 72px; }
+  .problem-inner, .features-header, .csrd-inner { grid-template-columns: 1fr; gap: 40px; }
+  .steps-grid, .sources-grid, .features-grid, .testimonial-inner { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .csrd-nums { grid-template-columns: 1fr 1fr; }
+  footer { flex-direction: column; gap: 16px; text-align: center; }
+  .browser-content { grid-template-columns: 1fr; }
+  .step-arrow { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">KRBN</a>
+  <ul class="nav-links">
+    <li><a href="#comment">Comment ça marche</a></li>
+    <li><a href="#donnees">Les données</a></li>
+    <li><a href="#conformite">CSRD</a></li>
+    <li><a href="https://krbn.vercel.app" class="btn-nav">Accéder à l'app →</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div style="position:relative; z-index:1;">
+    <p class="hero-badge">Disponible maintenant · Données certifiées INIES</p>
+    <h1>
+      Votre prochaine facture<br>
+      a une <em>empreinte carbone.</em><br>
+      Il est temps de la connaître.
+    </h1>
+    <p class="hero-sub">
+      KRBN calcule l'impact CO₂ de vos matériaux en scannant vos factures fournisseurs. En minutes. Avec des sources traçables et un rapport PDF professionnel.
+    </p>
+    <div class="hero-btns">
+      <a href="https://krbn.vercel.app" class="btn-primary">Commencer gratuitement →</a>
+      <a href="#comment" class="btn-secondary">Voir comment ça marche</a>
+    </div>
+    <!-- App mockup -->
+    <div class="hero-mockup">
+      <div class="mockup-browser">
+        <div class="browser-bar">
+          <div class="dot" style="background:#FF5F57"></div>
+          <div class="dot" style="background:#FFBD2E"></div>
+          <div class="dot" style="background:#28CA42"></div>
+          <div class="browser-url">krbn.vercel.app / projets / Hôtel Riviera — Paris 8e</div>
+        </div>
+        <div class="browser-content">
+          <div class="mock-card">
+            <p class="mock-label">Total CO₂ projet</p>
+            <p class="mock-value">7 284<span class="mock-unit">kg</span></p>
+            <div class="mock-bar-bg"><div class="mock-bar-fill" style="width:72%; background:var(--blue)"></div></div>
+          </div>
+          <div class="mock-card">
+            <p class="mock-label">CO₂ validé</p>
+            <p class="mock-value" style="color:var(--green)">4 912<span class="mock-unit">kg</span></p>
+            <div class="mock-bar-bg"><div class="mock-bar-fill" style="width:49%; background:var(--green)"></div></div>
+          </div>
+          <div class="mock-card">
+            <p class="mock-label">Budget utilisé</p>
+            <p class="mock-value" style="color:var(--amber)">73<span class="mock-unit">%</span></p>
+            <div class="mock-bar-bg"><div class="mock-bar-fill" style="width:73%; background:var(--amber)"></div></div>
+          </div>
+          <div class="mock-table">
+            <div class="mock-row">
+              <span class="mock-row-name">Parquet chêne massif — 260 m²</span>
+              <span class="mock-row-status status-green">Validé</span>
+              <span class="mock-co2">12 194 kg CO₂</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row-name">Plaque de plâtre BA13 — 480 m²</span>
+              <span class="mock-row-status status-blue">Sélectionné</span>
+              <span class="mock-co2">1 776 kg CO₂</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row-name">Laine de verre 100mm — 320 m²</span>
+              <span class="mock-row-status status-green">Validé</span>
+              <span class="mock-co2">896 kg CO₂</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row-name">Peinture acrylique int. — 200 m²</span>
+              <span class="mock-row-status status-gray">Exploration</span>
+              <span class="mock-co2">360 kg CO₂</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item"><span class="ticker-dot"></span>Base INIES certifiée</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Base Empreinte ADEME</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>NF EN 15804 compatible</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Rapport PDF CSRD en 1 clic</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Scan de factures par IA</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Base communautaire architectes</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>RE2020 compatible</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>50 000+ fiches FDES</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Base INIES certifiée</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Base Empreinte ADEME</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>NF EN 15804 compatible</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Rapport PDF CSRD en 1 clic</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Scan de factures par IA</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Base communautaire architectes</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>RE2020 compatible</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>50 000+ fiches FDES</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stats-grid">
+    <div class="stat-box reveal">
+      <span class="stat-num">50 000+</span>
+      <p class="stat-label">Fiches FDES référencées</p>
+    </div>
+    <div class="stat-box reveal reveal-delay-1">
+      <span class="stat-num">3 min</span>
+      <p class="stat-label">Pour calculer un projet complet</p>
+    </div>
+    <div class="stat-box reveal reveal-delay-2">
+      <span class="stat-num">100%</span>
+      <p class="stat-label">Sources traçables et vérifiables</p>
+    </div>
+    <div class="stat-box reveal reveal-delay-3">
+      <span class="stat-num">1 scan</span>
+      <p class="stat-label">De facture suffit pour tout calculer</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="problem-inner container">
+    <div class="reveal">
+      <span class="section-tag">Le problème</span>
+      <h2>La CSRD arrive.<br>Êtes-vous <em>prêt ?</em></h2>
+      <p class="lead">
+        Depuis 2024, les grandes entreprises doivent justifier l'impact carbone de leurs aménagements. Dès 2026, toutes les ETI suivront. Vos clients vous le demandent déjà — sans outil dédié pour y répondre.
+      </p>
+    </div>
+    <div class="problem-cards reveal reveal-delay-1">
+      <div class="problem-card">
+        <span class="problem-icon">⏱️</span>
+        <div>
+          <p class="problem-title">2 à 3 jours perdus par projet</p>
+          <p class="problem-text">Rassembler les FDES, calculer à la main, formater un rapport… Un temps que personne n'a.</p>
+        </div>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">🔍</span>
+        <div>
+          <p class="problem-title">Aucun outil dédié à l'intérieur</p>
+          <p class="problem-text">Les outils existants visent le gros œuvre. L'aménagement intérieur, personne n'y avait pensé.</p>
+        </div>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">📋</span>
+        <div>
+          <p class="problem-title">La conformité devient un critère d'AO</p>
+          <p class="problem-text">Hôtellerie, retail, corporate : vos clients RSE exigent désormais un rapport carbone traçable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="comment">
+  <div class="container">
+    <div class="reveal" style="text-align:center; max-width:640px; margin:0 auto 0;">
+      <span class="section-tag">Comment ça marche</span>
+      <h2>De la facture au rapport<br><em>en quelques minutes.</em></h2>
+      <p class="lead" style="margin:0 auto; text-align:center; max-width:480px;">
+        Pas de formation. Pas d'intégration. KRBN s'intègre dans votre workflow naturellement.
+      </p>
+    </div>
+    <div class="steps-grid">
+      <div class="step reveal">
+        <span class="step-num">Étape 01</span>
+        <span class="step-icon">🧾</span>
+        <h3 class="step-title">Scannez vos factures</h3>
+        <p class="step-text">Importez une facture PDF ou prenez-la en photo. L'IA lit chaque ligne produit et identifie automatiquement chaque matériau.</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step reveal reveal-delay-1">
+        <span class="step-num">Étape 02</span>
+        <span class="step-icon">⚡</span>
+        <h3 class="step-title">Le CO₂ se calcule</h3>
+        <p class="step-text">Chaque matériau est associé à sa fiche FDES officielle. L'impact CO₂ total du projet se calcule en temps réel, par lot.</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step reveal reveal-delay-2">
+        <span class="step-num">Étape 03</span>
+        <span class="step-icon">📄</span>
+        <h3 class="step-title">Exportez le rapport</h3>
+        <p class="step-text">Un rapport PDF avec toutes les sources citées, les URLs INIES vérifiables, prêt pour votre client ou votre appel d'offres RSE.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="container">
+    <div class="features-header">
+      <div class="reveal">
+        <span class="section-tag">Fonctionnalités</span>
+        <h2>Tout ce dont un architecte<br><em>a vraiment besoin.</em></h2>
+      </div>
+      <p class="lead reveal reveal-delay-1">
+        Chaque fonctionnalité répond à un besoin concret du terrain. Pensé par et pour les architectes d'intérieur parisiens.
+      </p>
+    </div>
+    <div class="features-grid">
+      <div class="feature reveal">
+        <span class="feature-icon">🧾</span>
+        <h3 class="feature-title">Scan de factures IA</h3>
+        <p class="feature-text">Importez une facture PDF ou prenez-la en photo. Claude AI extrait chaque ligne et calcule automatiquement l'impact CO₂ de toute la commande. Correspondances approchées signalées clairement.</p>
+        <span class="feature-badge">Intelligence artificielle</span>
+      </div>
+      <div class="feature reveal reveal-delay-1">
+        <span class="feature-icon">📊</span>
+        <h3 class="feature-title">Dashboard projet temps réel</h3>
+        <p class="feature-text">Répartition CO₂ par lot — sols, murs, plafonds, menuiseries — avec graphiques radar et barres. Budget carbone, KPIs validés, suivi de progression par statut matériau.</p>
+        <span class="feature-badge">Visualisation</span>
+      </div>
+      <div class="feature reveal reveal-delay-2">
+        <span class="feature-icon">📱</span>
+        <h3 class="feature-title">Scanner 4 modes</h3>
+        <p class="feature-text">QR Code INIES, code-barres EAN, OCR texte emballage, recherche manuelle. 4 façons d'identifier un matériau — sur chantier, en showroom, en déplacement.</p>
+        <span class="feature-badge">Mobile-first PWA</span>
+      </div>
+      <div class="feature reveal reveal-delay-3">
+        <span class="feature-icon">📄</span>
+        <h3 class="feature-title">Rapport PDF RSE certifié</h3>
+        <p class="feature-text">Export en un clic. Détail des matériaux, répartition par lot, annexe FDES avec URLs vérifiables, mentions légales CSRD. Prêt à envoyer à votre client.</p>
+        <span class="feature-badge">Conformité CSRD</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA SOURCES -->
+<section id="donnees">
+  <div class="container">
+    <div class="reveal" style="display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:end; margin-bottom:48px;">
+      <div>
+        <span class="section-tag">Les données</span>
+        <h2>La base la plus<br><em>complète</em> du marché.</h2>
+      </div>
+      <p class="lead">
+        KRBN agrège les trois sources officielles françaises de données carbone matériaux. Chaque valeur est liée à sa fiche source, consultable librement.
+      </p>
+    </div>
+    <div class="sources-grid">
+      <div class="source-card reveal">
+        <span class="source-badge">Officielle</span>
+        <h3 class="source-name">Base INIES</h3>
+        <p class="source-desc">Fiches FDES et DED certifiées, vérifiées par tierce partie. La référence réglementaire française pour le calcul carbone bâtiment. Normes NF EN 15804+A1 et A2.</p>
+        <span class="source-count">50 000+</span>
+        <p class="source-count-label">fiches vérifiées</p>
+      </div>
+      <div class="source-card reveal reveal-delay-1">
+        <span class="source-badge">Officielle</span>
+        <h3 class="source-name">Base Empreinte ADEME</h3>
+        <p class="source-desc">Facteurs d'émission officiels pour l'ameublement, les revêtements et les équipements. La référence nationale reconnue pour le reporting CSRD.</p>
+        <span class="source-count">2 000+</span>
+        <p class="source-count-label">catégories produits</p>
+      </div>
+      <div class="source-card reveal reveal-delay-2">
+        <span class="source-badge">Communautaire</span>
+        <h3 class="source-name">Base KRBN Community</h3>
+        <p class="source-desc">Données terrain contribuées par les architectes. Mobilier premium, matériaux exclusifs, produits non encore référencés sur INIES. Validés par vote communautaire.</p>
+        <span class="source-count">∞</span>
+        <p class="source-count-label">en croissance continue</p>
+      </div>
+    </div>
+    <div class="reveal" style="margin-top:20px; background:var(--blue-mid); border:1px solid var(--blue-light); border-radius:var(--radius); padding:28px 32px; display:flex; gap:16px; align-items:flex-start;">
+      <span style="font-size:18px; flex-shrink:0; margin-top:2px;">🔗</span>
+      <div>
+        <p style="font-size:14px; font-weight:700; color:var(--black); margin-bottom:6px;">Traçabilité totale — chaque valeur est vérifiable</p>
+        <p style="font-size:13px; color:var(--gray-500); line-height:1.7;">Le rapport PDF exporte l'URL INIES de chaque matériau. Votre client peut vérifier chaque donnée indépendamment sur base-inies.fr. Conformité garantie NF EN 15804+A1 et A2.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<div class="quote-section">
+  <div class="quote-inner reveal">
+    <p class="quote-text">
+      "Le bâtiment représente 39% des émissions mondiales. L'aménagement intérieur, c'est la partie que personne ne mesurait encore. KRBN change ça."
+    </p>
+    <p class="quote-tag">// KRBN · Paris · 2025</p>
+  </div>
+</div>
+
+<!-- CSRD -->
+<section id="conformite">
+  <div class="container">
+    <div class="csrd-inner">
+      <div class="reveal">
+        <span class="section-tag">Conformité CSRD</span>
+        <h2>Anticipez la réglementation<br><em>avant vos concurrents.</em></h2>
+        <p class="lead" style="margin-bottom:32px;">
+          La directive CSRD rend obligatoire le reporting carbone pour toutes les ETI d'ici 2026. Vos clients grands comptes vous le demanderont avant. KRBN vous y prépare aujourd'hui.
+        </p>
+        <a href="https://krbn.vercel.app" class="btn-primary">Commencer maintenant →</a>
+      </div>
+      <div class="csrd-nums reveal reveal-delay-1">
+        <div class="csrd-box">
+          <span class="csrd-val">2026</span>
+          <p class="csrd-label">Obligation CSRD étendue à toutes les ETI</p>
+        </div>
+        <div class="csrd-box">
+          <span class="csrd-val">39%</span>
+          <p class="csrd-label">Des émissions mondiales liées au bâtiment</p>
+        </div>
+        <div class="csrd-box">
+          <span class="csrd-val">3 min</span>
+          <p class="csrd-label">Pour générer un rapport certifié avec KRBN</p>
+        </div>
+        <div class="csrd-box">
+          <span class="csrd-val">100%</span>
+          <p class="csrd-label">Sources traçables et vérifiables INIES</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonial">
+  <div class="container">
+    <div class="reveal" style="text-align:center; margin-bottom:56px;">
+      <span class="section-tag">Ce qu'ils en disent</span>
+      <h2>Adopté par les architectes<br><em>qui anticipent.</em></h2>
+    </div>
+    <div class="testimonial-inner">
+      <div class="testi-card reveal">
+        <p class="testi-stars">★★★★★</p>
+        <p class="testi-text">"En 10 minutes je scanne ma facture Tarkett et j'ai l'impact CO₂ de tout mon sol. Avant ça me prenait une demi-journée. C'est un game changer pour les appels d'offres RSE."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">SM</div>
+          <div>
+            <p class="testi-name">Sophie M.</p>
+            <p class="testi-role">Architecte d'intérieur · Paris 11e</p>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-1">
+        <p class="testi-stars">★★★★★</p>
+        <p class="testi-text">"Mon client Accor m'a demandé un rapport carbone en 48h. Avec KRBN j'ai eu le PDF en 20 minutes, avec les URLs INIES pour chaque matériau. Le client était bluffé."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">TL</div>
+          <div>
+            <p class="testi-name">Thomas L.</p>
+            <p class="testi-role">Architecte · Agence RL Studio · Paris</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="reveal" style="position:relative; z-index:1;">
+    <span class="section-tag" style="margin-bottom:20px; display:inline-flex;">Prêt à commencer ?</span>
+    <h2 class="cta-title">
+      Le carbone de vos projets,<br>
+      <em>enfin visible.</em>
+    </h2>
+    <p class="cta-sub">Gratuit. Aucune installation. Vos premiers projets en 5 minutes.</p>
+    <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <a href="https://krbn.vercel.app" class="btn-primary" style="font-size:16px; padding:16px 36px;">Accéder à KRBN gratuitement →</a>
+      <a href="mailto:contact@krbn.app" class="btn-secondary" style="font-size:16px; padding:16px 28px;">Nous contacter</a>
+    </div>
+    <div class="cta-trust">
+      <span>Données certifiées INIES</span>
+      <span>Base Empreinte ADEME</span>
+      <span>NF EN 15804 compatible</span>
+      <span>Gratuit pour commencer</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">KRBN</a>
+  <div class="footer-copy">
+    © 2025 KRBN — Calcul d'empreinte carbone pour architectes d'intérieur<br>
+    Sources : Base INIES © HQE-GBC · Base Empreinte® © ADEME
+  </div>
+  <div class="footer-links">
+    <a href="https://krbn.vercel.app">App</a>
+    <a href="mailto:contact@krbn.app">Contact</a>
+    <a href="#">Mentions légales</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => io.observe(el));
+</script>
+</body>
+</html>
